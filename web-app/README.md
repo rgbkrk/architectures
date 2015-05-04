@@ -23,6 +23,7 @@ Todo
   - Ubuntu 14.04 image with monitoring agent installed
   - Located inside private network
   - Assigned to the security group
+- 1 Cloud Database instance
 - 1 Auto Scale group with scale up and scale down policies, including webhooks
 - Cloud Monitoring notifications and alarms
 
