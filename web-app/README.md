@@ -7,8 +7,24 @@
 ## Deployment
 
 ### Ansible
+Todo
 
 ### Heat
+Todo 
+
+## Specification
+
+- 1 Cloud DNS domain and multiple records
+- 1 Cloud Load Balancer with ``WEIGHTED_LEAST_CONNECTIONS`` algorithm. 
+- 1 private network
+- 1 security group
+- 3 Cloud Server instances with the following spec:
+  - 2GB performance flavor
+  - Ubuntu 14.04 image with monitoring agent installed
+  - Located inside private network
+  - Assigned to the security group
+- 1 Auto Scale group with scale up and scale down policies, including webhooks
+- Cloud Monitoring notifications and alarms
 
 ## Notes
 
