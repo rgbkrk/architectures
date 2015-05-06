@@ -15,7 +15,7 @@ Each architecture blueprint should try and solve an expected customer workflow: 
 
 When implementing a new architecture blueprint, there are three steps:
 
-1. Identify the Rackspace architecture that your workflow will use. Draw up a very simple diagram that can help outline how each component operates and integrate together (I use ). These will eventually be stylized by our UI team. Another thing you will need to do is define and describe in text how each component works: a brief paragraph will do; think about its role in the wider problem, what software will be installed, how it will be configured, etc. Be opinionated about best practices.
+1. Identify the Rackspace architecture that your workflow will use. Draw up a very simple diagram that can help outline how each component operates and integrate together (I use https://draw.io). These will eventually be stylized by our UI team. Another thing you will need to do is define and describe in text how each component works: a brief paragraph will do; think about its role in the wider problem, what software will be installed, how it will be configured, etc. Be opinionated about best practices.
 
 2. Once you've identified the Rackspace services, think of an example application that can showcase this architecture. We want to make everything less abstract and more concrete, to prove to users that this architecture will work when deployed. You should just focus on a very simple, ubiquitious, "cookie-cutter" open-source application to get the ball rolling. For example, if you're trying to showcase a Web App architecture, you might choose WordPress, Ghost, or Reddit (all open-source) to showcase how each component ties together. 
 
