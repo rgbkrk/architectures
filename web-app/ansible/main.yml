@@ -1,0 +1,5 @@
+name: Provision web setup
+  hosts: local
+  connection: local
+  gather_facts: False
+  tasks:
