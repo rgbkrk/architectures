@@ -1,0 +1,3 @@
+[submodule "web-app/ansible/roles/cloud-monitoring-agent"]
+	path = web-app/ansible/roles/cloud-monitoring-agent
+	url = https://github.com/rack-roles/cloud-monitoring-agent
