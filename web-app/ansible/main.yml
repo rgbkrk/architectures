@@ -1,5 +1,97 @@
-name: Provision web setup
+---
+- name: Provision web setup
   hosts: local
   connection: local
   gather_facts: False
+  vars_files:
+    - vars.yml
   tasks:
+
+    - name: Create container
+      rax_files:
+        container: "{{ container_name }}"
+        public: yes
+        ttl: "{{ container_ttl }}"
+        region: "{{ region }}"
+        credentials: "{{ creds_file }}"
+
+    # - name: Create CDN rules
+
+    - name: Create Load Balancer
+      rax_clb:
+        credentials: "{{ creds_file }}"
+        region: "{{ region }}"
+        name: "{{ lb_name }}"
+        port: 80
+        protocol: HTTP
+        algorithm: ROUND_ROBIN
+        type: PUBLIC
+        timeout: 30
+        wait: yes
+        state: present
+      register: clb
+
+    - name: Create scaling group
+      rax_scaling_group:
+        credentials: "{{ creds_file }}"
+        region: "{{ region }}"
+        cooldown: 300
+        flavor: "{{ server_flavor }}"
+        image: "{{ server_image }}"
+        min_entities: 2
+        max_entities: 10
+        name: "{{ autoscale_group_name }}"
+        server_name: "{{ server_name }}"
+        key_name: "{{ server_keypair }}"
+        meta:
+          group: "{{ autoscale_group_name }}"
+        loadbalancers:
+          - id: "{{ clb.balancer.id }}"
+            port: "{{ clb.balancer.port|int }}"
+        # wait: yes
+        # wait_timeout: 500
+      register: asg
+
+    - name: Create DB instance
+      rax_cdb:
+        credentials: "{{ creds_file }}"
+        name: "{{ db_instance_name }}"
+        flavor: "{{ db_flavor }}"
+        volume: "{{ db_volume }}"
+        state: present
+        wait: yes
+        region: "{{ region }}"
+      register: cdb
+
+    # - name: Set up replication
+
+    - name: Add DNS domain
+      rax_dns:
+        credentials: "{{ creds_file }}"
+        name: "{{ dns_domain }}"
+        email: "{{ dns_email }}"
+      when: dns_domain
+
+    - name: Add A-record
+      rax_dns_record:
+        credentials: "{{ creds_file }}"
+        domain: "{{ dns_domain }}"
+        name: "www.{{ dns_domain }}"
+        data: "{{ clb.balancer.virtual_ips[0].address }}"
+        type: A
+      when: dns_domain
+
+- name: Configure web servers
+  hosts: web_apps
+  remote_user: root
+  vars_files:
+    - vars.yml
+  vars:
+    rackspace_username: "{{ username }}"
+    rackspace_apikey: "{{ api_key }}"
+    cloud_monitoring_filesystem_alarm: True
+    cloud_monitoring_cpu_alarm: True
+    cloud_monitoring_memory_alarm: True
+    cloud_monitoring_load_alarm: True
+  roles:
+    - cloud-monitoring-agent

@@ -1,0 +1,28 @@
+# API credentials
+username:
+api_key:
+region: IAD
+creds_file: ~/.rackspace_cloud_credentials
+
+# Load balancer config
+lb_name: web_lb
+
+# Server config
+autoscale_group_name: web_apps
+server_flavor: performance1-1
+server_image: c1a96aed-e867-47ef-9f38-0be158eb98b8
+server_name: web_app
+server_keypair: work_mp
+
+# CDN/storage config
+container_name: web_assets
+container_ttl: 86400
+
+# DB config
+db_instance_name: prod_db
+db_flavor: 3
+db_volume: 5
+
+# DNS
+dns_domain: example.org
+dns_email: foo@example.org
