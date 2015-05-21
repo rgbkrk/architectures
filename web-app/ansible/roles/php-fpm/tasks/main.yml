@@ -8,9 +8,9 @@
     - php5-gd
 
 - name: Disable default pool
-  command: mv /etc/php5/fpm/php-fpm.conf /etc/php5/fpm/php-fpm.disabled creates=/etc/php5/fpm/php-fpm.disabled
+  command: mv /etc/php5/fpm/pool.d/www.conf /etc/php5/fpm/pool.d/www.disabled creates=/etc/php5/fpm/pool.d/www.disabled
   notify: restart php-fpm
  
 - name: Copy php-fpm configuration
-  template: src=wordpress.conf dest=/etc/php5/fpm/
+  template: src=wordpress.conf dest=/etc/php5/fpm/pool.d
   notify: restart php-fpm
