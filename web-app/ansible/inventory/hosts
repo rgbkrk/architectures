@@ -1,5 +1,5 @@
 [local]
-localhost ansible_connection=local ansible_python_interpreter=~/.venvs/env3/bin/python
+localhost ansible_connection=local 
 
 [all:vars]
 ansible_ssh_user=root
