@@ -1,8 +1,6 @@
 # API credentials
-username:
-api_key:
 region: IAD
-creds_file: ~/.rackspace_cloud_credentials
+pyrax_creds_file: ~/.rackspace_cloud_credentials
 
 # Load balancer config
 lb_name: web_lb
@@ -12,7 +10,7 @@ autoscale_group_name: web_apps
 server_flavor: performance1-1
 server_image: c1a96aed-e867-47ef-9f38-0be158eb98b8
 server_name: web_app
-server_keypair: work_mp
+server_keypair: work_mpb
 
 # CDN/storage config
 container_name: web_assets
@@ -24,5 +22,5 @@ db_flavor: 3
 db_volume: 5
 
 # DNS
-dns_domain: 
-dns_email: 
+dns_domain: jhtest.space
+dns_email: jamie.hannaford@rackspace.com 
