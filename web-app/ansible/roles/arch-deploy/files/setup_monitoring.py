@@ -2,6 +2,7 @@ import pyrax
 import getopt
 import sys
 import os
+import yaml
 
 output_file = ".np_id"
 
@@ -23,9 +24,11 @@ for o, a in opts:
     elif o in ('-d', '--down'):
         down_policy_id = a
 
+yml_file = os.path.abspath('../../../creds.yml')
+yml = yaml.load(open(yml_file))
+
 pyrax.set_setting("identity_type", "rackspace")
-creds_file = os.path.expanduser("~/.rackspace_cloud_credentials")
-pyrax.set_credential_file(creds_file)
+pyrax.set_credentials(yml['username'], yml['api_key'])
 
 cm = pyrax.cloud_monitoring
 au = pyrax.connect_to_autoscale(region="IAD")

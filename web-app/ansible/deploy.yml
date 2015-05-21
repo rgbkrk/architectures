@@ -1,0 +1,9 @@
+---
+- name: Deploy web architecture
+  hosts: local
+  connection: local
+  gather_facts: False
+  vars_files:
+    - vars.yml
+  roles:
+    - arch-deploy

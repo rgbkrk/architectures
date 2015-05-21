@@ -1,0 +1,23 @@
+---
+- name: Configure web servers
+  hosts: web_apps
+  remote_user: root
+  vars_files:
+    - vars.yml
+    - creds.yml
+  vars:
+    rackspace_username: "{{ username }}"
+    rackspace_apikey: "{{ api_key }}"
+    cloud_monitoring_agent_force_setup: True
+    cloud_monitoring_filesystem_alarm: True
+    cloud_monitoring_cpu_alarm: True
+    cloud_monitoring_memory_alarm: True
+    cloud_monitoring_load_alarm: True
+    notification_plan_id: "{{ lookup('file', '.np_id') }}"
+    wp_db_host: "{{ hostvars.localhost.cdb.cdb.hostname }}"
+    server_hostname: "{{ dns_domain }}"
+  roles:
+    - { role: cloud-monitoring-agent, tags: ['monitoring'] }
+    - { role: nginx, tags: ['nginx'] }
+    - { role: php-fpm, tags: ['php-fpm'] }
+    - { role: wordpress, tags: ['wordpress'] }
