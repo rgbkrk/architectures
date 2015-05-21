@@ -5,6 +5,7 @@
   gather_facts: False
   vars_files:
     - vars.yml
+    - web-app.yml
   tasks:
 
     - name: Create container
@@ -13,13 +14,13 @@
         public: yes
         ttl: "{{ container_ttl }}"
         region: "{{ region }}"
-        credentials: "{{ creds_file }}"
+        credentials: "{{ pyrax_creds_file }}"
 
-    # - name: Create CDN rules
+    #- name: Create CDN rules
 
     - name: Create Load Balancer
       rax_clb:
-        credentials: "{{ creds_file }}"
+        credentials: "{{ pyrax_creds_file }}"
         region: "{{ region }}"
         name: "{{ lb_name }}"
         port: 80
@@ -33,9 +34,9 @@
 
     - name: Create scaling group
       rax_scaling_group:
-        credentials: "{{ creds_file }}"
+        credentials: "{{ pyrax_creds_file }}"
         region: "{{ region }}"
-        cooldown: 300
+        cooldown: 60
         flavor: "{{ server_flavor }}"
         image: "{{ server_image }}"
         min_entities: 2
@@ -52,9 +53,41 @@
         # wait_timeout: 500
       register: asg
 
+    - name: Create up scaling policy
+      rax_scaling_policy:
+        credentials: "{{ pyrax_creds_file }}"
+        region: "{{ region }}"
+        cooldown: 60
+        change: 1
+        name: up
+        scaling_group: "{{ autoscale_group_name }}"
+        policy_type: webhook
+        state: present
+      register: sg_up
+
+    - name: Create down scaling policy
+      rax_scaling_policy:
+        credentials: "{{ pyrax_creds_file }}"
+        region: "{{ region }}"
+        cooldown: 60
+        change: 1
+        name: down
+        scaling_group: "{{ autoscale_group_name }}"
+        policy_type: webhook
+        state: present
+      register: sg_down
+
+    - name: Create webhooks for policies, then associate with notifications
+      command: >
+        python setup_monitoring.py
+          --group {{ asg.autoscale_group.id }}
+          --up {{ sg_up.autoscale_policy.id }}
+          --down {{ sg_down.autoscale_policy.id }}
+      when: sg_up.changed == True and sg_down.changed == True
+
     - name: Create DB instance
       rax_cdb:
-        credentials: "{{ creds_file }}"
+        credentials: "{{ pyrax_creds_file }}"
         name: "{{ db_instance_name }}"
         flavor: "{{ db_flavor }}"
         volume: "{{ db_volume }}"
@@ -63,35 +96,61 @@
         region: "{{ region }}"
       register: cdb
 
+    - name: Create DB
+      rax_cdb_database:
+        credentials: "{{ pyrax_creds_file }}"
+        region: "{{ region }}"
+        cdb_id: "{{ cdb.cdb.id }}"
+        name: "{{ wp_db_name }}"
+      register: wp_db
+
+    - name: Create DB user
+      rax_cdb_user:
+        credentials: "{{ pyrax_creds_file }}"
+        region: "{{ region }}"
+        cdb_id: "{{ cdb.cdb.id }}"
+        db_username: "{{ wp_db_user }}"
+        db_password: "{{ wp_db_password }}"
+        databases: ["{{ wp_db_name }}"]
+
     # - name: Set up replication
 
     - name: Add DNS domain
       rax_dns:
-        credentials: "{{ creds_file }}"
         name: "{{ dns_domain }}"
         email: "{{ dns_email }}"
-      when: dns_domain
+        credentials: "{{ pyrax_creds_file }}"
+      when: dns_domain is defined
 
     - name: Add A-record
       rax_dns_record:
-        credentials: "{{ creds_file }}"
+        credentials: "{{ pyrax_creds_file }}"
         domain: "{{ dns_domain }}"
         name: "www.{{ dns_domain }}"
         data: "{{ clb.balancer.virtual_ips[0].address }}"
         type: A
-      when: dns_domain
+      when: dns_domain is defined
 
 - name: Configure web servers
   hosts: web_apps
   remote_user: root
   vars_files:
     - vars.yml
+    - creds.yml
+    - web-app.yml
   vars:
     rackspace_username: "{{ username }}"
     rackspace_apikey: "{{ api_key }}"
+    cloud_monitoring_agent_force_setup: True
     cloud_monitoring_filesystem_alarm: True
     cloud_monitoring_cpu_alarm: True
     cloud_monitoring_memory_alarm: True
     cloud_monitoring_load_alarm: True
+    notification_plan_id: "{{ lookup('file', '.np_id') }}"
+    wp_db_host: "{{ hostvars.localhost.cdb.cdb.hostname }}"
+    server_hostname: "{{ dns_domain }}"
   roles:
     - cloud-monitoring-agent
+    - nginx
+    - php-fpm
+    - wordpress
