@@ -75,7 +75,7 @@
 
 - name: Create webhooks for policies, then associate with notifications
   command: >
-    python setup_monitoring.py
+    python {{ role_path }}/files/setup_monitoring.py
       --group {{ asg.autoscale_group.id }}
       --up {{ sg_up.autoscale_policy.id }}
       --down {{ sg_down.autoscale_policy.id }}

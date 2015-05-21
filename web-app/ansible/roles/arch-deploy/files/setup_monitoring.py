@@ -24,9 +24,7 @@ for o, a in opts:
     elif o in ('-d', '--down'):
         down_policy_id = a
 
-yml_file = os.path.abspath('../../../creds.yml')
-yml = yaml.load(open(yml_file))
-
+yml = yaml.load(open('creds.yml'))
 pyrax.set_setting("identity_type", "rackspace")
 pyrax.set_credentials(yml['username'], yml['api_key'])
 
