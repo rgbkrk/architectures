@@ -26,3 +26,22 @@ generally be better.
   ```
   ansible-playbook -i inventory main.yml
   ```
+
+## Troubleshooting
+
+* If you're having trouble installing ansible for the first time with pip, and it
+shows some kind of gcc error, try installing `python2.7-dev`
+
+* If ansible is telling you that `requests` is too old (`python-novaclient` requires
+  >=2.5.2), you can manually upgrade it to the newest version (2.7.0) like so:
+
+  ```
+  pip install requests==2.7.0
+  ```
+
+* If ansible is complaining about `pbr!=0.7,<1.0,>=0.6`, try upgrading the
+  keystone client:
+
+  ```
+  pip install python-keystoneclient --upgrade -I
+  ```
