@@ -25,6 +25,7 @@ for o, a in opts:
         down_policy_id = a
 
 yml = yaml.load(open('creds.yml'))
+
 pyrax.set_setting("identity_type", "rackspace")
 pyrax.set_credentials(yml['username'], yml['api_key'])
 

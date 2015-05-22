@@ -1,0 +1,33 @@
+---
+- name: Create DB instance
+  rax_cdb:
+    credentials: "{{ pyrax_creds_file }}"
+    name: "{{ db_instance_name }}"
+    flavor: "{{ db_flavor }}"
+    volume: "{{ db_volume }}"
+    state: present
+    wait: yes
+    region: "{{ region }}"
+  register: cdb
+  tags: database
+
+- name: Create DB
+  rax_cdb_database:
+    credentials: "{{ pyrax_creds_file }}"
+    region: "{{ region }}"
+    cdb_id: "{{ cdb.cdb.id }}"
+    name: "{{ wp_db_name }}"
+  register: wp_db
+  tags: database
+
+- name: Create DB user
+  rax_cdb_user:
+    credentials: "{{ pyrax_creds_file }}"
+    region: "{{ region }}"
+    cdb_id: "{{ cdb.cdb.id }}"
+    db_username: "{{ wp_db_user }}"
+    db_password: "{{ wp_db_password }}"
+    databases: ["{{ wp_db_name }}"]
+  tags: database
+
+# - name: Set up replication
