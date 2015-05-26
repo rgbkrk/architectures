@@ -65,7 +65,7 @@
     credentials: "{{ pyrax_creds_file }}"
     region: "{{ region }}"
     cooldown: 60
-    change: 1
+    change: -1
     name: down
     scaling_group: "{{ autoscale_group_name }}"
     policy_type: webhook
