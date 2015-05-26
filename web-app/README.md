@@ -14,18 +14,32 @@ Todo
 
 ## Specification
 
-- 1 Cloud DNS domain and multiple records
-- 1 Cloud Load Balancer with ``WEIGHTED_LEAST_CONNECTIONS`` algorithm. 
-- 1 private network
-- 1 security group
-- 3 Cloud Server instances with the following spec:
-  - 2GB performance flavor
-  - Ubuntu 14.04 image with monitoring agent installed
-  - Located inside private network
-  - Assigned to the security group
-- 1 Cloud Database instance
-- 1 Auto Scale group with scale up and scale down policies, including webhooks
-- Cloud Monitoring notifications and alarms
+### DNS
+- DNS domain entry for website (if given)
+- "A" record that points to LB IPv4
+
+### Load Balancer
+- 1 Cloud Load Balancer with `ROUND_ROBIN` algorithm, `HTTP` protocol, listening on port 80.
+
+### Auto Scale
+- 1 group with the following server configuration:
+ - 1GB performance (`performance1-1`) flavor
+ - Customized Ubuntu 15.04 image
+ - keypair associated with whatever host is deploying
+ The group has a cooldown of 60 seconds; min entities of 2 and max of 10. 
+
+- "up" scaling policy that increases the group pool by +1, with a cooldown of 60 seconds. It is `webhook` type, and is associated with a cloud monitoring alarm.
+
+- "down" scaling policy that decreases the group pool by 1, with a cooldown of 60 seconds. It is `webhook` type, and is associated with a cloud monitoring alarm.
+
+### Monitoring
+- Each server in the Auto Scale group is based on a server image that has the rackspace-monitoring-agent binary pre-installed and configured. This is achieved by a configuration playbook.
+- Each entity has basic checks that test CPU, memory, disk space, and load.
+- All checks are associated with a global notification policy.
+- The notification policy has two key notifications: `CRITICAL` is associated with the Auto Scale "up" policy; `OK` is associated with the Auto Scale "down" policy.
+
+### Databases
+- 2GB database instance, with a `wordpress` database and `wordpress` user. 
 
 ## Notes
 
